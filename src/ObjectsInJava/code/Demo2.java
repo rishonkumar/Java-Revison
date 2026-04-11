@@ -5,9 +5,12 @@ public class Demo2 {
 
     static void main() {
         Random r1 = new Random(4,5);
-        Random r2 = new Random(r1);
+        Random r2 = new Random(r1); //deep copy
+        Random r3 = r1; //shallow copy same reference it will be
 
         System.out.println(r1.x + " , " + r1.y);
+        System.out.println(r2.x + " , " + r2.y);
+        System.out.println(r3.x + " , " + r3.y);
 
         addTen(r1);
 
