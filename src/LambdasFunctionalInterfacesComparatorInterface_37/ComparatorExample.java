@@ -29,6 +29,49 @@ public class ComparatorExample {
         Collections.sort(list, c2);
         Collections.sort(list, c3);
 
+        //Instead of writng all this classes we can use anonymms class
+        //instead of creating class this is done simple way
+        Collections.sort(list, new Comparator<Student>() {
+            @Override
+            public int compare(Student o1, Student o2) {
+                return o1.marks - o2.marks;
+            }
+        });
+
+        //even in anonyms we are still creating class it looks complicated
+        //I jsut need to tell a method how to do something
+        // we can use fucntion interface which can be implemtent thright lamda expression
+        //Function interface means
+        //    Only one abstrach method => inthis case interface Comparator<T> {int compare (To1, To2) -> absrtrach method}
+        //   static method
+        // default method
+
+        // this functional interface can be written in lamda expression
+        // here list if of stupe student so obvious the paramter will be of type student
+        Collections.sort(list, (s1,s2) -> s1.marks - s2.marks);
+
+        for(Student s : list) {
+            System.out.println(s.name + ", " + s.marks + " ," + s.rollNo);
+        }
+        //Ways to write Lamda expresioon declare
+
+        // multiple paramater (a,b) -> (a+b)
+        // Single paramter x -> x*x
+        //no paramter () -> print("helo")
+
+        //multiline
+        /*
+        (a,b) -> {
+
+        int s = a+b
+        reutrn s
+
+        }
+         */
+
+        //From the current context it assume what type s1 and s2 are thsi is also know as TARGET TYPING
+        //Lamda exp is implemted for functional interface and it was it can have only one abstract method and it maps to it
+
 
     }
 }
