@@ -67,16 +67,39 @@ System.out.println(add.apply(3, 4));  // 7
 ### 3. Consumer<T> — `ConsumerExample.java`
 
 ```java
-Consumer<Integer> print = x -> System.out.println(x);
-print.accept(6);  // prints 6
+Consumer<Integer> print = x -> System.out.println("Value: " + x);
+print.accept(6);  // Value: 6
 
 // forEach uses Consumer internally
-List<Integer> list = List.of(1, 2, 3, 4);
-list.forEach(x -> System.out.println(x));
+List<Integer> list = List.of(1, 2, 3, 4, 5);
+list.forEach(x -> System.out.print(x * x + " "));  // 1 4 9 16 25
+
+// Method reference shorthand
+list.forEach(System.out::println);
+
+// andThen — chain two consumers (both execute, one after another)
+Consumer<String> log   = s -> System.out.println("[LOG] " + s);
+Consumer<String> audit = s -> System.out.println("[AUDIT] " + s);
+log.andThen(audit).accept("User login");
+// [LOG] User login
+// [AUDIT] User login
 
 // BiConsumer — two inputs, no return
 BiConsumer<String, Integer> printPair = (name, age) ->
-    System.out.println(name + " is " + age);
+    System.out.println(name + " is " + age + " years old");
+printPair.accept("Rishon", 22);  // Rishon is 22 years old
+
+// BiConsumer with Map.forEach
+Map<String, Integer> scores = Map.of("Alice", 95, "Bob", 87);
+scores.forEach((name, score) -> System.out.println(name + " → " + score));
+
+// Consumer pipeline — chain print + uppercase
+Consumer<String> printName  = System.out::println;
+Consumer<String> printUpper = s -> System.out.println(s.toUpperCase());
+Consumer<String> pipeline    = printName.andThen(printUpper);
+pipeline.accept("Rishon");
+// Rishon
+// RISHON
 ```
 
 ---
@@ -98,15 +121,55 @@ List<String> list = listFactory.get();  // creates new list
 
 ```java
 Predicate<Integer> isEven = x -> x % 2 == 0;
-System.out.println(isEven.test(4));  // true
-System.out.println(isEven.test(3));  // false
+System.out.println(isEven.test(4));   // true
+System.out.println(isEven.test(7));   // false
 
-// Combining predicates
+// ── Combining predicates ───────────────────────────────────────────
 Predicate<Integer> isPositive = x -> x > 0;
+Predicate<Integer> isLarge    = x -> x > 100;
+
 Predicate<Integer> isEvenAndPositive = isEven.and(isPositive);
-Predicate<Integer> isOdd = isEven.negate();
-Predicate<Integer> isEvenOrNegative = isEven.or(isPositive.negate());
+Predicate<Integer> isOdd             = isEven.negate();
+Predicate<Integer> isEvenOrLarge     = isEven.or(isLarge);
+
+System.out.println(isEvenAndPositive.test(4));   // true
+System.out.println(isEvenAndPositive.test(-4));  // false (not positive)
+System.out.println(isOdd.test(3));               // true
+System.out.println(isEvenOrLarge.test(101));     // true (large)
+System.out.println(isEvenOrLarge.test(3));       // false
+
+// ── Predicate chaining shorthand ──────────────────────────────────
+Predicate<Integer> isGreater = x -> x > 100;
+Predicate<Integer> isEven2   = x -> x % 2 == 0;
+
+isGreater.and(isEven2).test(102)  // true  (>100 AND even)
+isGreater.or(isEven2).test(102)   // true  (OR condition)
+isEven2.negate().test(111)        // true  (odd)
+
+// ── Predicate with Stream — filter ────────────────────────────────
+List<Integer> numbers = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+List<Integer> evenNumbers = numbers.stream()
+                                   .filter(isEven)
+                                   .collect(Collectors.toList());
+System.out.println("Even: " + evenNumbers);  // [2, 4, 6, 8, 10]
+
+List<Integer> oddNumbers = numbers.stream()
+                                  .filter(isEven.negate())
+                                  .collect(Collectors.toList());
+System.out.println("Odd: " + oddNumbers);    // [1, 3, 5, 7, 9]
+
+// ── Real-world: custom class + predicate composition ─────────────
+// class Student { int mark; int age; }
+Predicate<Student> passed    = s -> s.mark >= 40;
+Predicate<Student> isAdult   = s -> s.age  >= 18;
+Predicate<Student> isEligible = passed.and(isAdult);
+
+System.out.println(isEligible.test(new Student(50, 19)));  // true
+System.out.println(isEligible.test(new Student(30, 20)));  // false (mark < 40)
 ```
+
+> **Java 11+:** `Predicate.not(String::isEmpty)` is a clean static alternative to `.negate()`.
 
 ---
 
@@ -238,13 +301,51 @@ IntBinaryOperator add = (a, b) -> a + b;     // int, int → int
 
 ---
 
+### Q8. TRICKY: How does `Consumer.andThen()` behave if the second consumer throws an exception?
+> The first consumer runs to completion. If the second throws an unchecked exception, it propagates — the first consumer's side-effects are **already committed** (not rolled back).
+
+```java
+Consumer<String> log   = s -> System.out.println("[LOG] " + s);
+Consumer<String> risky = s -> { if (s == null) throw new NullPointerException(); };
+log.andThen(risky).accept(null);
+// [LOG] null  ← first ran
+// NullPointerException ← second throws
+```
+
+---
+
+### Q9. How would you use `Predicate` with a custom class to filter eligible candidates?
+
+```java
+class Student { int mark; int age; }
+
+Predicate<Student> passed    = s -> s.mark >= 40;
+Predicate<Student> isAdult   = s -> s.age  >= 18;
+Predicate<Student> isEligible = passed.and(isAdult);
+
+List<Student> students = List.of(
+    new Student(50, 19),   // eligible
+    new Student(35, 20),   // failed (mark < 40)
+    new Student(60, 17)    // underage
+);
+
+students.stream()
+        .filter(isEligible)
+        .forEach(s -> System.out.println("Eligible: mark=" + s.mark + " age=" + s.age));
+// Eligible: mark=50 age=19
+```
+
+> **Pattern:** Build fine-grained predicates for each rule → compose them with `and()` / `or()`. This is far more readable and testable than a giant `if` statement.
+
+---
+
 ## 📂 Files
 | File | What it demonstrates |
 |------|---------------------|
 | `Demo.java` | Custom `@FunctionalInterface` + lambda basics |
-| `FunctionExample.java` | `Function<T,R>` — apply() |
-| `ConsumerExample.java` | `Consumer<T>` — accept(), forEach() |
-| `SupplierExample.java` | `Supplier<T>` — get() |
-| `PredicateExample.java` | `Predicate<T>` — test() |
+| `FunctionExample.java` | `Function<T,R>` — apply(), BiFunction |
+| `ConsumerExample.java` | `Consumer<T>` — accept(), forEach(), andThen() pipeline, BiConsumer with Map |
+| `SupplierExample.java` | `Supplier<T>` — get(), lazy init, factory |
+| `PredicateExample.java` | `Predicate<T>` — test(), and/or/negate, Stream.filter, Student eligibility |
 | `FunctionalComposition.java` | `andThen()` vs `compose()` |
 | `MethodReferenceExample.java` | All 4 types of method references |

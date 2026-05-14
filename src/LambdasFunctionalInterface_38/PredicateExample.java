@@ -1,5 +1,6 @@
 package LambdasFunctionalInterface_38;
 
+import java.time.chrono.IsoChronology;
 import java.util.function.Predicate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,5 +60,39 @@ public class PredicateExample {
 
         // Java 11+: Predicate.not() for even cleaner code
         // Predicate<String> isNotEmpty = Predicate.not(String::isEmpty);
+
+        //PRedicate chainging
+//        Suppose x > 100 and x % 2 == 0
+
+        Predicate<Integer>isGreater = x -> x > 100;
+        Predicate<Integer>isEvenn = x -> x % 2 == 0;
+
+        System.out.println(isGreater.and(isEvenn).test(102));
+
+        System.out.println(isGreater.or(isEvenn).test(102)); // or condition
+
+        //negate !
+        Predicate<Integer>isOddd = isEvenn.negate();
+        System.out.println(isOddd.test(111));
+
+        Predicate<Student>passed = s -> s.mark >=40;
+        Predicate<Student>isAdult = s -> s.age >= 18;
+
+        Predicate<Student> isEligible = passed.and(isAdult);
+
+        System.out.println(isEligible.test(new Student(50,19)));
+
+    }
+}
+
+//example for predicate
+
+class Student {
+    int age;
+    int mark;
+
+    public Student(int mark, int age) {
+        this.age = age;
+        this.mark = mark;
     }
 }

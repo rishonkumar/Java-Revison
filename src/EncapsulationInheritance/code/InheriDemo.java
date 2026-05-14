@@ -58,7 +58,7 @@ class StudentBase {
 }
 
 // ── Simple & also parent for Multi-level ──────────────────────────────
-class EngineeringStudent extends StudentBase {
+class EngineeringStudent1 extends StudentBase {
     void attendLab() {
         System.out.println("Lab attended");
     }

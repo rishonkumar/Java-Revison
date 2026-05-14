@@ -1,4 +1,4 @@
-package MultithreadingInJava;
+package MultithreadingInJava_47;
 
 /*
  * Multithreading in Java

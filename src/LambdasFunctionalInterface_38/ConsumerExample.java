@@ -60,5 +60,13 @@ public class ConsumerExample {
         Map<String, Integer> scores = Map.of("Alice", 95, "Bob", 87, "Charlie", 92);
         scores.forEach((name, score) ->
             System.out.println(name + " → " + score));
+
+        //Consumer chaining
+        Consumer<String> printName = System.out::println;
+        Consumer<String> printUpperCase = s -> System.out.println(s.toUpperCase());
+
+        Consumer<String>pipline = printName.andThen(printUpperCase);
+        pipline.accept("Rishon");
+
     }
 }
