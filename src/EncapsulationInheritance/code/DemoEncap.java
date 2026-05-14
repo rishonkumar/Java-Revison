@@ -1,32 +1,58 @@
 package EncapsulationInheritance.code;
 
+/*
+ * Encapsulation — Hiding internal data with private fields + controlled access via getters/setters
+ * Key benefit: Setters can add VALIDATION — preventing invalid state
+ */
 public class DemoEncap {
 
-    static void main() {
+    public static void main(String[] args) {
+
+        // ── Basic BankAccount Encapsulation ───────────────────────────────
         BankAccount ba = new BankAccount();
         ba.deposit(500);
         ba.withdraw(300);
+        System.out.println("Balance: " + ba.getBalance());  // 200.0
 
-        System.out.println(ba.getBalance());
+        // ba.balance = 9999;  ❌ Compile error — private field, no direct access
+
+        // ── Withdrawal guard: balance cannot go negative ──────────────────
+        boolean result = ba.withdraw(1000);
+        System.out.println("Withdraw 1000 succeeded: " + result);  // false
+        System.out.println("Balance still: " + ba.getBalance());    // 200.0
+
+        // ── Student with validated setter ─────────────────────────────────
+        Student s = new Student("Rishon", 1, 21, "SRM");
+        System.out.println(s.getName());
+
+        // s.setAge(-5);  // would print validation error — won't set negative age
     }
 }
 
 class BankAccount {
-    private double balance;
+    private double balance;  // PRIVATE — outside world cannot directly touch this
 
     public void deposit(int amount) {
-        balance += amount;
+        if (amount > 0) {          // validation inside — caller can't bypass this
+            balance += amount;
+        }
     }
 
-    public void withdraw(int amount) {
-        balance -= amount;
+    // Returns true if successful, false if insufficient balance
+    public boolean withdraw(int amount) {
+        if (amount > 0 && balance >= amount) {
+            balance -= amount;
+            return true;
+        }
+        System.out.println("Insufficient balance or invalid amount.");
+        return false;
     }
 
-    //getter / setter
+    // Getter — read-only access to balance
     public double getBalance() {
         return balance;
     }
-
+    // No setter for balance — you MUST go through deposit/withdraw
 }
 
 class Student {
@@ -42,14 +68,24 @@ class Student {
         this.college = college;
     }
 
-    public String getName() {
-        return name;
+    public String getName() { return name; }
+
+    // Setter with validation — this is THE key benefit of encapsulation
+    public void setName(String name) {
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        } else {
+            System.out.println("Invalid name — not updated.");
+        }
     }
 
-    private void setName() {
-        //we can add validation in setters (use of encapuslation)
-        this.name = name;
+    public void setAge(int age) {
+        if (age > 0 && age < 150) {
+            this.age = age;
+        } else {
+            System.out.println("Invalid age — not updated.");
+        }
     }
 
-
+    public int getAge() { return age; }
 }

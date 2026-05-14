@@ -75,6 +75,47 @@ Lamdab expression
 
     Primitive Functional Interface
 
+        (T -> R)
+
+    IntFunction )int -> R) R Apply()
+
+    Long function (long -> R)
+
+    Double Function
+
+
+    ToIntFunction<T>
+    ToDoubleFunction<T>
+    ToLongFunction<T>
+
+    Primitive Consumer Faimly
+
+    IntCousmer ->(int -> Void) .. same for double and long
+
+    ObJIntCousmer (T,int) -> void
+
+
+    Primitive Supplier
+        void -> T
+
+       IntSupplier (void -> int) Same for long and double
+
+
+      Primitive perdicate
+
+        (T -> booleans)
+
+       IntPredicate (int -> boolean) same for long and double
+
+
+      Primitive operator family
+        (int -> int)
+
+        IntUnaryOperator same for long and double
+
+       IntBinary operator (int,int) -> int
+
+
 
 
 
