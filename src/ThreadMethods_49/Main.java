@@ -1,163 +1,109 @@
 package ThreadMethods_49;
 
+/*
+ * ==========================================
+ *        CORE THREAD METHODS IN JAVA
+ * ==========================================
+ * 
+ * 1. sleep(ms) : Pauses current thread (RUNNING -> TIMED_WAITING)
+ * 2. join()    : Waits for a thread to die (Caller goes to WAITING)
+ * 3. yield()   : Suggests OS to pause current thread and give CPU to another 
+ *                thread of same priority (RUNNING -> RUNNABLE)
+ * 4. interrupt(): Sets the interrupt flag. Gracefully stops a thread, 
+ *                 especially if it's sleeping or waiting.
+ * 5. isAlive() : Returns true if thread has been started and not yet dead.
+ * 6. setDaemon(): Background threads (like Garbage Collector). JVM exits 
+ *                 when ONLY Daemon threads remain. MUST be set before start().
+ * 7. setPriority(): 1 (MIN), 5 (NORM), 10 (MAX). Depends heavily on OS.
+ * 
+ * INTERRUPT FLAG WORKFLOW:
+ *    t.interrupt() ----> Sets flag to true
+ *    t.isInterrupted() -> Reads flag (returns true/false)
+ *    Thread.interrupted()-> Reads flag AND resets it to false
+ */
 public class Main {
 
-    static void main() throws InterruptedException {
+    static void main(String[] args) throws InterruptedException {
 
-        System.out.println("Main threads starts");
+        System.out.println("Main thread starts");
 
+        // ── 1. sleep() ────────────────────────────────────────────────────
         try {
-            Thread.sleep(2000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
+            System.out.println("Main interrupted");
         }
+        System.out.println("Main thread woke up");
 
-        System.out.println("Main threads sleeps");
-
+        // ── 2. join() ─────────────────────────────────────────────────────
         Thread t1 = new Thread(() -> {
             try {
-                Thread.sleep(20000);
-            } catch (InterruptedException e) {
-            }
-            System.out.println("Thread 0 starts");
+                Thread.sleep(500);
+            } catch (InterruptedException e) {}
+            System.out.println("T1 finishes heavy work");
         });
 
         t1.start();
+        t1.join(); // Main thread WAITS here until t1 finishes
+        // t1.join(2000); // Wait for max 2 seconds
 
-        t1.join(); // let the t1 thread first complete its excecution
-
-        // t1.join(2000); wait for 2 secs to wait
-
-        System.out.println("Main thread ends");
-
-        // Yield
+        // ── 3. yield() ────────────────────────────────────────────────────
         Thread t5 = new Thread(() -> {
-            for (int i = 1; i <= 10; i++) {
-                System.out.println("T1 " + i);
-                Thread.yield(); // now this gives priority to t2 to complete first
+            for (int i = 1; i <= 3; i++) {
+                System.out.println("Yield Thread -> " + i);
+                Thread.yield(); // Suggests OS to let t6 run
             }
         });
 
         Thread t6 = new Thread(() -> {
-            for (int i = 1; i <= 10; i++) {
-                System.out.println("T1 " + i);
+            for (int i = 1; i <= 3; i++) {
+                System.out.println("Normal Thread -> " + i);
             }
         });
 
         t5.start();
         t6.start();
 
+        // ── 4. interrupt() ────────────────────────────────────────────────
         Thread t8 = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) { // run till the thread is interrpted
-                System.out.println("RUnning");
+            // Run gracefully until interrupted
+            while (!Thread.currentThread().isInterrupted()) { 
+                // System.out.println("Running...");
             }
+            System.out.println("T8 was gracefully interrupted!");
         });
         t8.start();
-        t8.interrupt();
+        t8.interrupt(); // Sets the interrupt flag to true
 
-        // alive
+        // ── 5. isAlive() ──────────────────────────────────────────────────
         Thread t12 = new Thread(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-            }
+            try { Thread.sleep(100); } catch (Exception e) {}
         });
-        System.out.println(t12.isAlive()); // false
-
+        System.out.println("T12 Alive before start? " + t12.isAlive()); // false
         t12.start();
+        System.out.println("T12 Alive after start? " + t12.isAlive());  // true
 
-        System.out.println(t12.isAlive()); // true
-
+        // ── 6. Thread Priority ────────────────────────────────────────────
         Thread t16 = new Thread(() -> {
-            System.out.println("Custom thread running");
+            System.out.println("Priority Thread running");
         });
-
+        System.out.println("Default Priority: " + t16.getPriority()); // 5
+        t16.setPriority(Thread.MAX_PRIORITY); // 10
+        System.out.println("New Priority: " + t16.getPriority());     // 10
         t16.start();
 
-        System.out.println(t16.getPriority()); // 5
-
-        t16.setPriority(10);
-
-        System.out.println(t16.getPriority()); // 10
-
-        // Daemon threads
-        // once the main thread is over then the particluar thread should be over
-        Thread t88 = new Thread(() -> {
+        // ── 7. Daemon Threads ─────────────────────────────────────────────
+        Thread daemonThread = new Thread(() -> {
             while (true) {
-                System.out.println("Running");
+                // System.out.println("Daemon running in background...");
             }
         });
 
-        t88.setDaemon(true);
-        t88.start();
+        daemonThread.setDaemon(true); // Must be called BEFORE start()
+        daemonThread.start();
 
-        // now if we run there will be no running because our main thread is over let
-        // sleep the main
-        // thread for 2s so we can see the logs if we dont use setDaemion then we will
-        // keep getting
-        // the running even tho oour main thread is closed
-
-        Thread.sleep(2000);
+        // When the Main thread (user thread) ends, the JVM shuts down.
+        // It does NOT wait for Daemon threads to finish their infinite loops!
+        System.out.println("Main thread ends");
     }
 }
-
-/*
- * Thread important methods
- * sleep()(millisceobds) -> TIMED_WAITING
- * 
- * RUNNING --> TIMED_WAITING ----> RUNNABLE
- * 
- * Join
- * Main thread => WAITING
- * t1 thread -> RUNNABLE -> Terminated
- * Main thread -> Waiting -> Runnable -> Terminated
- * 
- * yield() I am waillingto give my spu time to someone else with same priority
- * and that wants to run
- * 1. OS can reject this we dont use this much in production
- * 2 It i slike a suggestion to the OS
- * 3 Current thread does not go to waiting , timed waiting, blocked
- * It does only go to runnable state
- * 
- * 
- * Thread -> interrupt flag (default true)
- * t1.interrupt() --> Sends a signal to t1 thread that is should strop doing
- * whats its doing
- * 
- * We can gracefully handle
- * You can make a thread run untill a condition
- * Cancelling a long running tasks
- * Use to stop Thread pool
- * 
- * isInterrupted --> return interrupt flag value
- * interrupted() -> Return interrupt flag value but also set it back to false
- * 
- * 
- * sleep , join , wait : TIMED WAITING , WAITING ---> interrupt()
- * 
- * isAlive() check cuurent thread is alive or not (start ----- terminate)
- * 
- * 
- * cuurentThread -> reference of cuurent running thread
- * 
- * Thread Priority ->
- * MAX PRIORITY = 10
- * MIN _ PRIority = 1
- * NORM prioty = 5
- * 
- * Depends on OS
- * may respect priority
- * may partially respect
- * may not at all
- * 
- * Daemon threads Background running threads
- * 
- * Threads -> User threads, Daemon threads
- * Stops immediatlyey once main thread is completed 
- * 
- * Garbage collection --> Daemon thread 
- * 
- * 
- * 
- * 
- * 
- */

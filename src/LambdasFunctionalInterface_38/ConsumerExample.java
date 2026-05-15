@@ -7,15 +7,34 @@ import java.util.List;
 import java.util.Map;
 
 /*
+ * ==========================================
+ *        CONSUMER INTERFACE & CHAINING
+ * ==========================================
+ * 
  * Consumer<T> — T → void
  * Abstract method: void accept(T t)
  *
  * BiConsumer<T,U> — (T, U) → void
  * Abstract method: void accept(T t, U u)
  *
- * andThen() — chain two consumers (execute both, one after another)
- *
- * Key use: forEach loops, logging, side effects
+ * CONSUMER CHAINING (.andThen):
+ * 
+ *     Input "Hello"
+ *          |
+ *          v
+ *   +-------------+
+ *   | Consumer 1  | (e.g., Print original)
+ *   +-------------+
+ *          | (side-effect happens)
+ *          v
+ *   +-------------+
+ *   | Consumer 2  | (e.g., Print Uppercase)
+ *   +-------------+
+ *          | (side-effect happens)
+ *          v
+ *       (void)
+ * 
+ * Key use: forEach loops, logging, validation, side effects
  */
 public class ConsumerExample {
 
@@ -32,10 +51,12 @@ public class ConsumerExample {
         List<Integer> list = new ArrayList<>(List.of(1, 2, 3, 4, 5));
 
         // Old way:
+        System.out.print("Old loop: ");
         for (Integer i : list) { System.out.print(i + " "); }
         System.out.println();
 
         // Lambda way:
+        System.out.print("Lambda loop: ");
         list.forEach(x -> System.out.print(x * x + " "));  // 1 4 9 16 25
         System.out.println();
 
@@ -61,12 +82,11 @@ public class ConsumerExample {
         scores.forEach((name, score) ->
             System.out.println(name + " → " + score));
 
-        //Consumer chaining
+        // ── Consumer chaining ─────────────────────────────────────────────
         Consumer<String> printName = System.out::println;
         Consumer<String> printUpperCase = s -> System.out.println(s.toUpperCase());
 
-        Consumer<String>pipline = printName.andThen(printUpperCase);
-        pipline.accept("Rishon");
-
+        Consumer<String> pipeline = printName.andThen(printUpperCase);
+        pipeline.accept("Rishon");
     }
 }

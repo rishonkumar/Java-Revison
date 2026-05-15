@@ -1,15 +1,29 @@
 package MultithreadingInJava_47;
 
 /*
+ * ==========================================
+ *        PROCESS VS THREAD IN JAVA
+ * ==========================================
+ * 
+ *  [ OS PROCESS (e.g., JVM / Chrome) ]
+ *  +---------------------------------------------------+
+ *  |  Memory Space (Heap, Metaspace)                   | <-- SHARED by all threads
+ *  |                                                   |
+ *  |  +---------------+             +---------------+  |
+ *  |  |   Thread 1    |             |   Thread 2    |  |
+ *  |  |  +---------+  |             |  +---------+  |  |
+ *  |  |  | Stack   |  |             |  | Stack   |  |  | <-- INDEPENDENT per thread
+ *  |  |  +---------+  |             |  +---------+  |  |
+ *  |  |  | PC Reg  |  |             |  | PC Reg  |  |  |
+ *  |  |  +---------+  |             |  +---------+  |  |
+ *  |  +---------------+             +---------------+  |
+ *  +---------------------------------------------------+
+ * 
  * Multithreading in Java
  *
- * Process : A program that is currently being executed / Application running in RAM
- *           RAM, CPU, TIME, RESOURCES are needed to run a process
- *           Multiple processes (p1, p2) run concurrently — each has its OWN memory space
- *
- * Thread  : Smallest sequence of instructions executed by CPU independently
- *           A "lightweight process" — a process can have multiple threads
- *           Threads SHARE the same heap memory within a process
+ * Process : A program currently being executed. Heavyweight. Has its OWN memory space.
+ * Thread  : Smallest sequence of instructions executed independently. Lightweight. 
+ *           Threads SHARE the same heap memory within a process.
  */
 public class Demo {
 

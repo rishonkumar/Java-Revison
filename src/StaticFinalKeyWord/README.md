@@ -173,3 +173,150 @@ class Child extends Immutable { }  // ❌ Compile error
 | `code/Demo.java` | Static variable, static block |
 | `code/Demo3.java` | final instance variable, static final constant |
 | `code/Demo5.java` | Command-line args with `String[] args` |
+
+
+---
+
+## 💻 Full Source Code
+
+> Below is the complete, beautified source code for all examples in this topic.
+
+### code/Demo.java
+
+```java
+package StaticFinalKeyWord.code;
+
+/*
+ * ==========================================
+ *     STATIC KEYWORD & MEMORY ALLOCATION
+ * ==========================================
+ * 
+ *     HEAP MEMORY (Per Object)        METHOD AREA / METASPACE (Class Level)
+ *  +---------------------------+    +----------------------------------+
+ *  | s1 (Student)              |    | Student Class                    |
+ *  | - name: "Aditya"          |    | - college: "SRM" (Shared)        |
+ *  | - age: 28                 |    +----------------------------------+
+ *  | - rollNumber: 101         |            ^
+ *  +---------------------------+            | (All objects point here)
+ *                                           |
+ *  +---------------------------+            |
+ *  | s2 (Student)              |            |
+ *  | - name: "Rohit"           |------------+
+ *  | - age: 28                 |
+ *  | - rollNumber: 102         |
+ *  +---------------------------+
+ * 
+ * NOTE: 
+ * 1. Static variables belong to the CLASS, not the object.
+ * 2. Static blocks run EXACTLY ONCE when the class is loaded by the JVM.
+ */
+public class Demo {
+
+    static void main() {
+
+        Student s1 = new Student("Aditya", 28, 101);
+        Student s2 = new Student("Rohit", 28, 102);
+
+        // Access static variable using Class Name (Recommended)
+        System.out.println(s1.name + " , " + s1.age + " , " + s1.rollNumber + " , " + Student.college);
+        System.out.println(s2.name + " , " + s2.age + " , " + s2.rollNumber + " , " + Student.college);
+
+    }
+}
+
+class Student {
+    String name;
+    int age;
+    int rollNumber;
+    
+    // Static variable (Shared across all objects)
+    static String college; 
+
+    Student(String name, int age, int rollNumber) {
+        this.name = name;
+        this.age = age;
+        this.rollNumber = rollNumber;
+    }
+
+    // Static block: Runs once when the class is first loaded into memory
+    static {
+        System.out.println("Static block executed! (Class Loaded)");
+        college = "SRM";
+    }
+}
+
+```
+
+### code/Demo3.java
+
+```java
+package StaticFinalKeyWord.code;
+
+/*
+ * ==========================================
+ *        FINAL KEYWORD (CONSTANTS)
+ * ==========================================
+ * 
+ * 1. final variable: Value cannot be changed once initialized.
+ * 2. final method: Cannot be overridden by a subclass.
+ * 3. final class: Cannot be inherited (e.g., String class).
+ * 
+ * BLANK FINAL VARIABLE:
+ * A final variable that is not initialized at declaration. 
+ * It MUST be initialized inside the constructor (exactly once).
+ * 
+ * STATIC FINAL VARIABLE:
+ * Acts as a true compile-time constant for the whole class.
+ */
+public class Demo3 {
+
+    static void main() {
+        Random r1  = new Random();
+        System.out.println("PI: " + r1.PI);
+        System.out.println("STATIC CONSTANT: " + Random.CHECK);
+
+        // Local final variable
+        final int x = 4;
+        // x = 5; // ERROR: Cannot assign a value to final variable 'x'
+        System.out.println("Local final x: " + x);
+    }
+}
+
+class Random {
+    // Blank final variable (Initialized in constructor)
+    final double PI; 
+
+    // Static Final (True constant, shared across all objects, ALL_CAPS naming)
+    static final double CHECK = 3;
+
+    Random() {
+        // Can only be assigned ONCE
+        this.PI = 3.14;
+    }
+}
+
+```
+
+### code/Demo5.java
+
+```java
+package StaticFinalKeyWord.code;
+
+//USe of string[] args
+public class Demo5 {
+
+    static void main(String[] args) {
+        System.out.println("Nymber of arguments are " + args.length);
+
+        for(int i = 0 ; i < args.length ; i++) {
+            System.out.println("Argument " + i + " =" + args[i]);
+            // javac demo5.java
+            //if u run java Demo5 Rishon Rizon then you
+            // will get the output but if u run without giving
+            // any input it will show 0 argument
+        }
+    }
+}
+
+```
+

@@ -226,3 +226,281 @@ public class Test {
 | `code/DemoEncap.java` | BankAccount encapsulation + Student getters/setters |
 | `code/InheriDemo.java` | Inheritance types + multiple inheritance limitation |
 | `code/InheritanceExample.java` | Simple inheritance: StudentDemo → EngineeringStudent |
+
+
+---
+
+## 💻 Full Source Code
+
+> Below is the complete, beautified source code for all examples in this topic.
+
+### code/DemoEncap.java
+
+```java
+package EncapsulationInheritance.code;
+
+/*
+ * ==========================================
+ *        ENCAPSULATION IN JAVA
+ * ==========================================
+ * 
+ *       [ Outside World / Main ]
+ *                 |
+ *                 v
+ *  +-----------------------------+
+ *  |       STUDENT OBJECT        |
+ *  |                             |
+ *  |   public void setAge(age)   | <--- Gatekeeper (Validation Logic)
+ *  |   { if (age > 0) ... }      |
+ *  |              |              |
+ *  |              v              |
+ *  |      [ private age ]        | <--- Hidden Data (Cannot be accessed directly)
+ *  +-----------------------------+
+ * 
+ * Encapsulation = Data Hiding (private fields) + Controlled Access (public getters/setters)
+ * Key benefit: Setters can add VALIDATION — preventing the object from entering an invalid state.
+ */
+public class DemoEncap {
+
+    public static void main(String[] args) {
+
+        // ── Basic BankAccount Encapsulation ───────────────────────────────
+        BankAccount ba = new BankAccount();
+        ba.deposit(500);
+        ba.withdraw(300);
+        System.out.println("Balance: " + ba.getBalance());  // 200.0
+
+        // ba.balance = 9999;  // ❌ Compile error — private field, no direct access
+
+        // ── Withdrawal guard: balance cannot go negative ──────────────────
+        boolean result = ba.withdraw(1000);
+        System.out.println("Withdraw 1000 succeeded: " + result);  // false
+        System.out.println("Balance still: " + ba.getBalance());    // 200.0
+
+        // ── Student with validated setter ─────────────────────────────────
+        Student s = new Student("Rishon", 1, 21, "SRM");
+        System.out.println("Student Name: " + s.getName());
+
+        // s.setAge(-5);  // prints validation error — won't set negative age
+    }
+}
+
+class BankAccount {
+    // PRIVATE — outside world cannot directly touch this
+    private double balance;  
+
+    public void deposit(int amount) {
+        // Validation inside — caller can't bypass this
+        if (amount > 0) {          
+            balance += amount;
+        }
+    }
+
+    // Returns true if successful, false if insufficient balance
+    public boolean withdraw(int amount) {
+        if (amount > 0 && balance >= amount) {
+            balance -= amount;
+            return true;
+        }
+        System.out.println("Insufficient balance or invalid amount.");
+        return false;
+    }
+
+    // Getter — read-only access to balance
+    public double getBalance() {
+        return balance;
+    }
+    // No setter for balance — you MUST go through deposit/withdraw to alter state
+}
+
+class Student {
+    private String name;
+    private int rollNo;
+    private int age;
+    private String college;
+
+    Student(String name, int rollNo, int age, String college) {
+        this.name = name;
+        this.rollNo = rollNo;
+        this.age = age;
+        this.college = college;
+    }
+
+    public String getName() { return name; }
+
+    // Setter with validation — this is THE key benefit of encapsulation
+    public void setName(String name) {
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        } else {
+            System.out.println("Invalid name — not updated.");
+        }
+    }
+
+    public void setAge(int age) {
+        if (age > 0 && age < 150) {
+            this.age = age;
+        } else {
+            System.out.println("Invalid age — not updated.");
+        }
+    }
+
+    public int getAge() { return age; }
+}
+
+```
+
+### code/InheriDemo.java
+
+```java
+package EncapsulationInheritance.code;
+
+/*
+ * ==========================================
+ *        INHERITANCE TYPES IN JAVA
+ * ==========================================
+ *
+ * 1. Simple (Single)   : A → B
+ * 2. Multi-level       : A → B → C
+ * 3. Hierarchical      : A → B, A → C (one parent, multiple children)
+ * 4. Multiple          : NOT supported via classes (diamond problem)
+ *                        Achieved via INTERFACES
+ *
+ * THE DIAMOND PROBLEM:
+ * 
+ *         [ A ] (method X)
+ *         /   \
+ *       /       \
+ *    [ B ]     [ C ] (both override method X)
+ *       \       /
+ *         \   /
+ *         [ D ]  <-- Which method X does D inherit? AMBIGUOUS!
+ * 
+ * Java's fix: Multiple inheritance is ONLY allowed via interfaces.
+ *             If two interfaces have the same default method → D MUST override it to resolve ambiguity.
+ */
+public class InheriDemo {
+
+    public static void main(String[] args) {
+
+        // ── 1. Simple Inheritance ─────────────────────────────────────────
+        EngineeringStudent1 es = new EngineeringStudent1();
+        es.markAttendance();  // Inherited/Overridden from StudentBase
+        es.attendLab();       // Own method
+
+        // ── 2. Multi-level Inheritance ────────────────────────────────────
+        CSEEngineeringStudent cse = new CSEEngineeringStudent();
+        cse.markAttendance(); // From StudentBase (grandparent)
+        cse.attendLab();      // From EngineeringStudent1 (parent)
+        cse.attendCSELab();   // Own method
+
+        // ── Dynamic Method Dispatch (Polymorphism) ────────────────────────
+        // Parent reference holding a child object
+        StudentBase ref = new EngineeringStudent1();
+        ref.markAttendance(); // ✅ Runtime uses the Child's overridden method!
+        // ref.attendLab();   // ❌ Compile error — StudentBase reference doesn't know about attendLab()
+
+        // ── 3. Multiple Inheritance via Interface ─────────────────────────
+        AndroidDeveloper dev = new AndroidDeveloper();
+        dev.writeCode();     // From Programmer interface
+        dev.useMobile();     // From MobileUser interface
+        dev.develop();       // Own method
+    }
+}
+
+// ── Simple Base Class ──────────────────────────────────────────────────
+class StudentBase {
+    String name;
+    int age;
+
+    void markAttendance() {
+        System.out.println(this.getClass().getSimpleName() + " attendance marked");
+    }
+}
+
+// ── Simple Inheritance & parent for Multi-level ────────────────────────
+class EngineeringStudent1 extends StudentBase {
+    void attendLab() {
+        System.out.println("Lab attended");
+    }
+
+    @Override
+    void markAttendance() {
+        System.out.println("Engineering student attendance (with biometric)");
+    }
+}
+
+// ── Multi-level: StudentBase → EngineeringStudent1 → CSEEngineeringStudent 
+class CSEEngineeringStudent extends EngineeringStudent1 {
+    void attendCSELab() {
+        System.out.println("CSE Lab attended");
+    }
+}
+
+// ── Hierarchical: StudentBase → MedicalStudent (sibling of EngineeringStudent) 
+class MedicalStudent extends StudentBase {
+    void attendClinic() {
+        System.out.println("Clinic attended");
+    }
+}
+
+// ── Multiple Inheritance via Interfaces ────────────────────────────────
+interface Programmer {
+    default void writeCode() { System.out.println("Writing code..."); }
+}
+
+interface MobileUser {
+    default void useMobile() { System.out.println("Using mobile..."); }
+}
+
+// AndroidDeveloper IS-A Programmer AND IS-A MobileUser — no diamond problem!
+class AndroidDeveloper implements Programmer, MobileUser {
+    void develop() { System.out.println("Developing Android app"); }
+}
+
+```
+
+### code/InheritanceExample.java
+
+```java
+package EncapsulationInheritance.code;
+
+public class InheritanceExample {
+
+    static void main() {
+        EngineeringStudent es = new EngineeringStudent();
+        es.markAttendance();
+        es.attendLab();
+
+        StudentDemo sm = new StudentDemo();
+//        sm.attendLab(); error
+        sm.markAttendance();
+    }
+}
+/*
+Parent(SuperClass) -> CHild(subclass) Simple inheritance
+ */
+
+class StudentDemo {
+    String name;
+    int age;
+
+    void markAttendance() {
+        System.out.println("Attendance marked");
+    }
+    //it should not be private
+
+}
+
+class EngineeringStudent extends StudentDemo {
+
+   void attendLab() {
+       System.out.println("Lab marked");
+
+   }
+}
+
+
+
+```
+

@@ -15,7 +15,8 @@
 | 4 | [Comparator Interface](src/LambdasFunctionalInterfacesComparatorInterface_37/README.md) | `Comparator<T>`, anonymous class → lambda evolution |
 | 5 | [Lambdas & Functional Interfaces](src/LambdasFunctionalInterface_38/README.md) | `Function`, `Consumer`, `Supplier`, `Predicate`, Method References, Composition |
 | 6 | [Multithreading](src/MultithreadingInJava_47/README.md) | Thread lifecycle, `synchronized`, race conditions, deadlock, ExecutorService |
-| 7 | [Thread Methods](src/ThreadMethods_49/README.md) | `sleep`, `join`, `yield`, `interrupt`, Daemon Threads, Priority |
+| 7 | [Multithreading Part 2](src/MulithreadingInJava_48/README.md) | `Thread` vs `Runnable`, Execution order, Thread Lifecycle states |
+| 8 | [Thread Methods](src/ThreadMethods_49/README.md) | `sleep`, `join`, `yield`, `interrupt`, Daemon Threads, Priority |
 
 ---
 
@@ -64,6 +65,10 @@ Java-Revison/
     │   └── README.md
     ├── MultithreadingInJava_47/
     │   ├── Demo.java               → Thread concepts
+    │   └── README.md
+    ├── MulithreadingInJava_48/
+    │   ├── Main.java               → Thread vs Runnable
+    │   ├── ThreadLifeCycle.java    → Lifecycle states diagram & code
     │   └── README.md
     └── ThreadMethods_49/
         ├── Main.java               → sleep, join, yield, interrupt, daemon

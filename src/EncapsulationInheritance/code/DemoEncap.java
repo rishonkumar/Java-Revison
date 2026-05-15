@@ -1,8 +1,25 @@
 package EncapsulationInheritance.code;
 
 /*
- * Encapsulation — Hiding internal data with private fields + controlled access via getters/setters
- * Key benefit: Setters can add VALIDATION — preventing invalid state
+ * ==========================================
+ *        ENCAPSULATION IN JAVA
+ * ==========================================
+ * 
+ *       [ Outside World / Main ]
+ *                 |
+ *                 v
+ *  +-----------------------------+
+ *  |       STUDENT OBJECT        |
+ *  |                             |
+ *  |   public void setAge(age)   | <--- Gatekeeper (Validation Logic)
+ *  |   { if (age > 0) ... }      |
+ *  |              |              |
+ *  |              v              |
+ *  |      [ private age ]        | <--- Hidden Data (Cannot be accessed directly)
+ *  +-----------------------------+
+ * 
+ * Encapsulation = Data Hiding (private fields) + Controlled Access (public getters/setters)
+ * Key benefit: Setters can add VALIDATION — preventing the object from entering an invalid state.
  */
 public class DemoEncap {
 
@@ -14,7 +31,7 @@ public class DemoEncap {
         ba.withdraw(300);
         System.out.println("Balance: " + ba.getBalance());  // 200.0
 
-        // ba.balance = 9999;  ❌ Compile error — private field, no direct access
+        // ba.balance = 9999;  // ❌ Compile error — private field, no direct access
 
         // ── Withdrawal guard: balance cannot go negative ──────────────────
         boolean result = ba.withdraw(1000);
@@ -23,17 +40,19 @@ public class DemoEncap {
 
         // ── Student with validated setter ─────────────────────────────────
         Student s = new Student("Rishon", 1, 21, "SRM");
-        System.out.println(s.getName());
+        System.out.println("Student Name: " + s.getName());
 
-        // s.setAge(-5);  // would print validation error — won't set negative age
+        // s.setAge(-5);  // prints validation error — won't set negative age
     }
 }
 
 class BankAccount {
-    private double balance;  // PRIVATE — outside world cannot directly touch this
+    // PRIVATE — outside world cannot directly touch this
+    private double balance;  
 
     public void deposit(int amount) {
-        if (amount > 0) {          // validation inside — caller can't bypass this
+        // Validation inside — caller can't bypass this
+        if (amount > 0) {          
             balance += amount;
         }
     }
@@ -52,7 +71,7 @@ class BankAccount {
     public double getBalance() {
         return balance;
     }
-    // No setter for balance — you MUST go through deposit/withdraw
+    // No setter for balance — you MUST go through deposit/withdraw to alter state
 }
 
 class Student {

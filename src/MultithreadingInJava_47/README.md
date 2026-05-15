@@ -278,3 +278,128 @@ pool.shutdown();  // graceful shutdown — waits for all tasks to finish
 | File | What it demonstrates |
 |------|---------------------|
 | `Demo.java` | Process vs Thread concepts (with code added) |
+
+
+---
+
+## 💻 Full Source Code
+
+> Below is the complete, beautified source code for all examples in this topic.
+
+### Demo.java
+
+```java
+package MultithreadingInJava_47;
+
+/*
+ * ==========================================
+ *        PROCESS VS THREAD IN JAVA
+ * ==========================================
+ * 
+ *  [ OS PROCESS (e.g., JVM / Chrome) ]
+ *  +---------------------------------------------------+
+ *  |  Memory Space (Heap, Metaspace)                   | <-- SHARED by all threads
+ *  |                                                   |
+ *  |  +---------------+             +---------------+  |
+ *  |  |   Thread 1    |             |   Thread 2    |  |
+ *  |  |  +---------+  |             |  +---------+  |  |
+ *  |  |  | Stack   |  |             |  | Stack   |  |  | <-- INDEPENDENT per thread
+ *  |  |  +---------+  |             |  +---------+  |  |
+ *  |  |  | PC Reg  |  |             |  | PC Reg  |  |  |
+ *  |  |  +---------+  |             |  +---------+  |  |
+ *  |  +---------------+             +---------------+  |
+ *  +---------------------------------------------------+
+ * 
+ * Multithreading in Java
+ *
+ * Process : A program currently being executed. Heavyweight. Has its OWN memory space.
+ * Thread  : Smallest sequence of instructions executed independently. Lightweight. 
+ *           Threads SHARE the same heap memory within a process.
+ */
+public class Demo {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        // ── Way 1: Extend Thread class ────────────────────────────────────
+        Thread t1 = new Thread() {
+            @Override
+            public void run() {
+                for (int i = 1; i <= 5; i++) {
+                    System.out.println("Thread-A → " + i);
+                }
+            }
+        };
+
+        // ── Way 2: Implement Runnable (PREFERRED — decouples task from thread) ──
+        Runnable task = () -> {
+            for (int i = 1; i <= 5; i++) {
+                System.out.println("Thread-B → " + i);
+            }
+        };
+        Thread t2 = new Thread(task);
+
+        t1.start();   // ✅ creates a new thread — do NOT call run() directly!
+        t2.start();
+
+        // Output is INTERLEAVED — order is NOT guaranteed
+
+        // ── Joining — wait for thread to finish ──────────────────────────
+        t1.join();   // main thread waits for t1 to finish
+        t2.join();   // main thread waits for t2 to finish
+        System.out.println("Both threads done.");
+
+        // ── Race Condition Demo ───────────────────────────────────────────
+        RaceCounter unsafeCounter = new RaceCounter();
+        SafeCounter safeCounter = new SafeCounter();
+
+        Thread r1 = new Thread(() -> { for (int i = 0; i < 1000; i++) unsafeCounter.increment(); });
+        Thread r2 = new Thread(() -> { for (int i = 0; i < 1000; i++) unsafeCounter.increment(); });
+
+        Thread s1 = new Thread(() -> { for (int i = 0; i < 1000; i++) safeCounter.increment(); });
+        Thread s2 = new Thread(() -> { for (int i = 0; i < 1000; i++) safeCounter.increment(); });
+
+        r1.start(); r2.start(); r1.join(); r2.join();
+        s1.start(); s2.start(); s1.join(); s2.join();
+
+        System.out.println("Unsafe count (expected 2000): " + unsafeCounter.count); // usually < 2000
+        System.out.println("Safe count   (expected 2000): " + safeCounter.count);   // always 2000
+
+        // ── Daemon Thread ─────────────────────────────────────────────────
+        Thread daemon = new Thread(() -> {
+            while (true) {
+                System.out.println("Daemon running...");
+                try { Thread.sleep(500); } catch (InterruptedException e) { break; }
+            }
+        });
+        daemon.setDaemon(true);  // JVM exits when only daemon threads remain
+        // daemon.start();       // commented out to not pollute output
+    }
+}
+
+// ── Race Condition: count++ is NOT atomic (read → increment → write) ──
+class RaceCounter {
+    int count = 0;
+    void increment() { count++; }  // ❌ NOT thread-safe
+}
+
+// ── Synchronized: only one thread executes at a time ──────────────────
+class SafeCounter {
+    int count = 0;
+    synchronized void increment() { count++; }  // ✅ thread-safe
+}
+
+// ── Thread lifecycle example ──────────────────────────────────────────
+class LifecycleDemo extends Thread {
+    @Override
+    public void run() {
+        System.out.println("State inside run(): " + Thread.currentThread().getState()); // RUNNABLE
+        try {
+            Thread.sleep(100);  // → TIMED_WAITING
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+```
+

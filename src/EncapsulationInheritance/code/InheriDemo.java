@@ -1,7 +1,9 @@
 package EncapsulationInheritance.code;
 
 /*
- * Inheritance Types in Java
+ * ==========================================
+ *        INHERITANCE TYPES IN JAVA
+ * ==========================================
  *
  * 1. Simple (Single)   : A → B
  * 2. Multi-level       : A → B → C
@@ -9,45 +11,49 @@ package EncapsulationInheritance.code;
  * 4. Multiple          : NOT supported via classes (diamond problem)
  *                        Achieved via INTERFACES
  *
- * Diamond Problem:
- *       A
- *      / \
- *     B   C       B and C both override A.method()
- *      \ /
- *       D         ← which method() does D inherit? AMBIGUOUS!
- *
- * Java's fix: multiple inheritance ONLY via interfaces
- *             If two interfaces have same default method → D must override it
+ * THE DIAMOND PROBLEM:
+ * 
+ *         [ A ] (method X)
+ *         /   \
+ *       /       \
+ *    [ B ]     [ C ] (both override method X)
+ *       \       /
+ *         \   /
+ *         [ D ]  <-- Which method X does D inherit? AMBIGUOUS!
+ * 
+ * Java's fix: Multiple inheritance is ONLY allowed via interfaces.
+ *             If two interfaces have the same default method → D MUST override it to resolve ambiguity.
  */
 public class InheriDemo {
 
     public static void main(String[] args) {
 
-        // Simple Inheritance
-        EngineeringStudent es = new EngineeringStudent();
-        es.markAttendance();  // inherited from StudentBase
-        es.attendLab();       // own method
+        // ── 1. Simple Inheritance ─────────────────────────────────────────
+        EngineeringStudent1 es = new EngineeringStudent1();
+        es.markAttendance();  // Inherited/Overridden from StudentBase
+        es.attendLab();       // Own method
 
-        // Multi-level
+        // ── 2. Multi-level Inheritance ────────────────────────────────────
         CSEEngineeringStudent cse = new CSEEngineeringStudent();
-        cse.markAttendance(); // from StudentBase (grandparent)
-        cse.attendLab();      // from EngineeringStudent (parent)
-        cse.attendCSELab();   // own method
+        cse.markAttendance(); // From StudentBase (grandparent)
+        cse.attendLab();      // From EngineeringStudent1 (parent)
+        cse.attendCSELab();   // Own method
 
-        // Polymorphism — parent reference, child object
-        StudentBase ref = new EngineeringStudent();
-        ref.markAttendance(); // ✅ works — method from EngineeringStudent (overridden)
-        // ref.attendLab();   // ❌ compile error — StudentBase doesn't know attendLab
+        // ── Dynamic Method Dispatch (Polymorphism) ────────────────────────
+        // Parent reference holding a child object
+        StudentBase ref = new EngineeringStudent1();
+        ref.markAttendance(); // ✅ Runtime uses the Child's overridden method!
+        // ref.attendLab();   // ❌ Compile error — StudentBase reference doesn't know about attendLab()
 
-        // ── Multiple Inheritance via Interface ────────────────────────────
+        // ── 3. Multiple Inheritance via Interface ─────────────────────────
         AndroidDeveloper dev = new AndroidDeveloper();
-        dev.writeCode();     // from Programmer
-        dev.useMobile();     // from MobileUser
-        dev.develop();       // own method
+        dev.writeCode();     // From Programmer interface
+        dev.useMobile();     // From MobileUser interface
+        dev.develop();       // Own method
     }
 }
 
-// ── Simple ────────────────────────────────────────────────────────────
+// ── Simple Base Class ──────────────────────────────────────────────────
 class StudentBase {
     String name;
     int age;
@@ -57,7 +63,7 @@ class StudentBase {
     }
 }
 
-// ── Simple & also parent for Multi-level ──────────────────────────────
+// ── Simple Inheritance & parent for Multi-level ────────────────────────
 class EngineeringStudent1 extends StudentBase {
     void attendLab() {
         System.out.println("Lab attended");
@@ -69,21 +75,21 @@ class EngineeringStudent1 extends StudentBase {
     }
 }
 
-// ── Multi-level: StudentBase → EngineeringStudent → CSEEngineeringStudent ──
-class CSEEngineeringStudent extends EngineeringStudent {
+// ── Multi-level: StudentBase → EngineeringStudent1 → CSEEngineeringStudent 
+class CSEEngineeringStudent extends EngineeringStudent1 {
     void attendCSELab() {
         System.out.println("CSE Lab attended");
     }
 }
 
-// ── Hierarchical: StudentBase → MedicalStudent (sibling of EngineeringStudent) ──
+// ── Hierarchical: StudentBase → MedicalStudent (sibling of EngineeringStudent) 
 class MedicalStudent extends StudentBase {
     void attendClinic() {
         System.out.println("Clinic attended");
     }
 }
 
-// ── Multiple Inheritance via Interfaces ───────────────────────────────
+// ── Multiple Inheritance via Interfaces ────────────────────────────────
 interface Programmer {
     default void writeCode() { System.out.println("Writing code..."); }
 }
