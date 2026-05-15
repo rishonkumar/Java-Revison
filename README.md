@@ -15,6 +15,7 @@
 | 4 | [Comparator Interface](src/LambdasFunctionalInterfacesComparatorInterface_37/README.md) | `Comparator<T>`, anonymous class → lambda evolution |
 | 5 | [Lambdas & Functional Interfaces](src/LambdasFunctionalInterface_38/README.md) | `Function`, `Consumer`, `Supplier`, `Predicate`, Method References, Composition |
 | 6 | [Multithreading](src/MultithreadingInJava_47/README.md) | Thread lifecycle, `synchronized`, race conditions, deadlock, ExecutorService |
+| 7 | [Thread Methods](src/ThreadMethods_49/README.md) | `sleep`, `join`, `yield`, `interrupt`, Daemon Threads, Priority |
 
 ---
 
@@ -61,8 +62,11 @@ Java-Revison/
     │   ├── FunctionalComposition.java → andThen() / compose()
     │   ├── MethodReferenceExample.java → :: syntax
     │   └── README.md
-    └── MultithreadingInJava_47/
-        ├── Demo.java               → Thread concepts
+    ├── MultithreadingInJava_47/
+    │   ├── Demo.java               → Thread concepts
+    │   └── README.md
+    └── ThreadMethods_49/
+        ├── Main.java               → sleep, join, yield, interrupt, daemon
         └── README.md
 ```
 

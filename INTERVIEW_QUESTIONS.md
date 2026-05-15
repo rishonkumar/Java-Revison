@@ -546,6 +546,45 @@ pool.shutdown();   // waits for all tasks to complete
 
 ---
 
+### Q11. What is the difference between `sleep()` and `yield()`?
+| | `sleep(ms)` | `yield()` |
+|-|------------|----------|
+| State Change | `RUNNING` → `TIMED_WAITING` | `RUNNING` → `RUNNABLE` |
+| Guarantee | Pauses thread for at least `ms` | No guarantee (OS can ignore it) |
+| Use Case | Delay execution, polling | Hint to OS to allow equal-priority threads to run |
+
+---
+
+### Q12. What does `join()` do?
+> It makes the **calling thread** (e.g., `main`) wait until the **target thread** terminates.
+```java
+Thread t1 = new Thread(() -> doWork());
+t1.start();
+t1.join(); // Main thread pauses here and waits for t1 to finish
+```
+
+---
+
+### ⚡ Q13. TRICKY: How do you gracefully stop a running thread?
+> Never use `Thread.stop()` (it's deprecated and unsafe). Use the **interrupt flag**.
+```java
+Thread t = new Thread(() -> {
+    while (!Thread.currentThread().isInterrupted()) {
+        // do work
+    }
+});
+t.start();
+t.interrupt(); // Sets flag to true, loop condition becomes false
+```
+> **Note:** If `interrupt()` is called on a sleeping/waiting thread, it wakes up immediately and throws `InterruptedException`.
+
+---
+
+### Q14. Can you rely on Thread Priority for execution order?
+> **No.** Thread scheduling depends entirely on the OS scheduler. Some operating systems completely ignore thread priorities. It should only be used as a hint (`setPriority(int)`), never for program correctness.
+
+---
+
 ## ⚡ Bonus Edge Case Questions
 
 ### B1. What is the output?
